@@ -1,4 +1,4 @@
-# Cisco-Unified-Communications-CUCM
+# Cisco-Unified-Communications-CUCM-Configuration-Tracker
 Scripts for managing Cisco Unified Communications Manager
 
 This script is designed for continuous monitoring of configuration changes in Cisco Unified Communications Manager and emails admin team with the change details, if the change is detected, which is different from the standard base config that was configured during the initial installation. The admin can then review the change and commit, if it was intentional or revert if it was for testing or accidental change.
@@ -19,4 +19,10 @@ Upon receiving the change details, based on the type, action and the change deta
 
 **Requirements**
 
+BaseConfigFile - Initial configurations of all items that you would like to monitor through this script. This is being stored as a csv's for each config items. In the script, it is mentioned under templates as a key value pair. Key indicates the name of the configuration item such as DevicePool, TransPattern, RoutePattern and value being the sql query to pull the details of those items. The format of key in the template variable is same as what the listChange API outputs when the particular configuration has been changed.
+
+<img width="1494" height="836" alt="image" src="https://github.com/user-attachments/assets/99980c7d-807d-44a4-86b9-5e86cbcad7b7" />
+
+
+RunningConfigFile
 

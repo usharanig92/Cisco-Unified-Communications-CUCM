@@ -45,7 +45,7 @@ from zeep.transports import Transport
 
 # Relative paths for the CUCM AXL API wsdl file
 
-WSDL_RELATIVE_PATH = "application/unified-communications/axlsqltoolkit/schema/12.5/AXLAPI.wsdl"
+WSDL_RELATIVE_PATH = "/usr/usha/application/unified-communications/axlsqltoolkit/schema/12.5/AXLAPI.wsdl"
 
 
 class RequestResponseLoggingPlugin(Plugin):
@@ -114,14 +114,14 @@ def update_runningconfig(name, resp, mode, email_recipient):
                     data.append(child_values)
                 data.append(rowXml[i][j].text)
             writer.writerow(data)
-    result = compare_template(name, mode)
+    result = compare_running_with_base(name, mode)
     if result:
         date = datetime.now().strftime("%Y_%m_%d")
         subject = f"{date} : Changes made in the call manager has been commited to running-config. Please update base-config"
         body = (
             "Please review and either update base configs or roll back changes in CUCM.<br /><br />"
             f"To commit the change run the below command <br /><br />"
-            f"<strong> cucmconfigmon update_base {name} <i> reason_for_change </i> --mode {mode} </strong> <br /><br />"
+            f"<strong> cucmconfigtracker update_base {name} <i> reason_for_change </i> --mode {mode} </strong> <br /><br />"
             + result
         )
         email(
@@ -143,7 +143,7 @@ def create_service(*, username, certroot, mode):
     location = f"https://{host}:8443/axl/"
     binding = "{http://www.cisco.com/AXLAPIService/}AXLAPIBinding"
     history = HistoryPlugin()
-    auth_header = "password_for_cucm"
+    auth_header = "password_for_cucm" # read from vault or env file. do not store in source code
     session = Session()
     session.verify = certroot
     session.auth = HTTPBasicAuth(username, auth_header)
@@ -154,7 +154,7 @@ def create_service(*, username, certroot, mode):
     return client.create_service(binding, location), history
 
 
-def compare_template(name, mode):
+def compare_running_with_base(name, mode):
     df1 = pd.read_csv(
         get_config_relative_path("baseconfig", name, mode), index_col=False
     ).replace(np.nan, "")
@@ -342,7 +342,7 @@ def email(*, email_recipient, subject, body, mode):
 def update_baseconfig(name, username, mode, commit, email_recipient):
     source = get_config_relative_path("runningconfig", name, mode)
     destination = get_config_relative_path("baseconfig", name, mode)
-    diff = compare_template(name, mode)
+    diff = compare_running_with_base(name, mode)
     if diff:
         body = (
             f"New configs have been committed successfully from the above running config to the base repo <br /><br />"
@@ -836,7 +836,7 @@ def main():
     email_recipient_parent_parser.add_argument(
         "--email",
         dest="email_recipient",
-        default="auto-admin",
+        default="uc-admin",
         help="Enter the email address to send the change summary details to",
     )
     mode_parent_parser = argparse.ArgumentParser(add_help=False)

@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 """
 This Script tracks the changes in the CUCM system configurations and reports if any changes
 are detected. It compares the original and the changed configuration and shows which items
@@ -9,7 +8,28 @@ The commit command will update the base config with the changed information and 
 the team with the summary of the changes and the committer information along with the
 commit message.
 
+In this script I used uv to install the required dependencies on-demand instead of running
+in a virtual environment. Specifying the required modules under script block as shown below
+will install the specified modules during the script run and do the clean up automatically.
+Refer here to know more about uv https://github.com/astral-sh/uv
+
+To run this application using uv, use the command "uv run <script_name> <required_arguments>"
+
 """
+
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#     "pandas",
+#     "numpy",
+#     "lxml.etree",
+#     "paramiko",
+#     "paramiko_expect",
+#     "tabulate",
+#     "requests",
+#     "zeep",
+# ]
+# ///
 
 import argparse
 import csv
@@ -26,7 +46,6 @@ from datetime import datetime
 from shutil import copyfile
 from xml.etree import ElementTree as ET
 
-import dns.resolver
 import pandas as pd
 import numpy as np
 from lxml import etree
